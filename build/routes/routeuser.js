@@ -26,6 +26,7 @@ class Rutasuser {
         this.router.get('/perfil', optionalAuth, controllersUser_1.default.datosuser);
         this.router.get('/perfil/:username', optionalAuth, controllersUser_1.default.getuser);
         this.router.put('/perfil', optionalAuth, controllersUser_1.default.moduser);
+        this.router.put('/follow/:username', optionalAuth, controllersUser_1.default.follow);
     }
 }
 const rutauser = new Rutasuser();

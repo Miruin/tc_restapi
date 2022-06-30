@@ -37,6 +37,8 @@ class Rutasuser{
 
         this.router.put('/perfil', optionalAuth, controllersuser.moduser);
 
+        this.router.put('/follow/:username', optionalAuth, controllersuser.follow);
+
 
 
     }

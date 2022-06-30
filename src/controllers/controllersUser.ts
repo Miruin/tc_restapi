@@ -11,7 +11,43 @@ function creartoken(id: any) {
     return "Bearer "+jwt.sign(id, config.secrettoken);
 }
 
+
+async function changePassword(op: string, np: string, req: Request, pool: sql.ConnectionPool) {
+
+    const result = await pool.request()
+    .input('username', req.user)
+    .query(String(config.q2_1));
+    
+    if (result.recordset[0]) {
+    
+        const pwv = await bcryptjs.compare(op, result.recordset[0].pw_usuario);
+    
+        if (pwv) {
+                    
+            let rondas = 10;
+            let pwh = await bcryptjs.hash(np, rondas);
+
+            await pool.request()
+            .input('nick', sql.VarChar, req.user)
+            .input('pw', sql.VarChar, pwh)
+            .query(String(config.q1_1));
+
+            return 'se ha cambiado la password';
+                        
+        } else {
+
+            return 'no se ha podido cambiar la password';
+
+        }
+    
+    } else {
+
+
+    } 
+
+}
 class Controllersuser {
+
 
     constructor() {
         
@@ -122,16 +158,19 @@ class Controllersuser {
     
         try {
     
-            let { Email, Name, Lastname, Description } = req.body;
+            let { Username, Name, Lastname, oldPassword, newPassword} = req.body;
     
             const pool = await getcon();
 
             const result = await getdatosuser(pool, String(req.user));
-    
-            if (Email == result.recordset[0].email_usuario &&
-                Name == result.recordset[0].nombre_usuario &&
-                Lastname == result.recordset[0].apellido_usuario && 
-                Description == result.recordset[0].descripcion_usuario) {
+            
+            let { nombre_usuario, apellido_usuario, nick_usuario} = result.recordset[0]
+
+            if (Username == nick_usuario &&
+                Name == nombre_usuario &&
+                Lastname == apellido_usuario &&
+                oldPassword == null &&
+                newPassword == null) {
     
                 pool.close();
                 return res.status(400).send({msg: 'No se ha cambiado ningun valor...'});
@@ -139,26 +178,125 @@ class Controllersuser {
             } 
     
         
-            if(Name && Lastname && Email){
-
-            
+            if(Name != null && Name != nombre_usuario){
 
                 await pool.request()
-                .input('email', sql.VarChar, Email)
                 .input('nombre', sql.VarChar, Name)
-                .input('apellido', sql.VarChar, Lastname)
                 .input('nickname', req.user)
                 .query(String(config.q5_1));
-                    
-                pool.close();
-                return res.status(200).send({msg: 'Se ha actualizado satisfactoriamente'});
             }
             
+            if(Lastname != null && Lastname != apellido_usuario){
+
+                await pool.request()
+                .input('apellido', sql.VarChar, Lastname)
+                .input('nickname', req.user)
+                .query(String(config.q5_2));
+            }
+
+            let f = 'no se ha intentado cambiar el nick de usuario'
+
+            if(Username != null && Username != nick_usuario){
+                
+                const r1 = await getdatosuser(pool, String(Username));
+
+                if (r1.recordset[0]) {
+
+                    f = 'el usuario ya existe'
+                    
+                } else {
+
+                    await pool.request()
+                    .input('nick', sql.VarChar, Username)
+                    .input('nickname', req.user)
+                    .query(String(config.q5_3));
+
+                    f = 'el nick de usuario ha cambiado'
+                    
+                }
+                
+            }
+            
+            let cp = 'no se ha intentado cambiar la password'
+
+            if(oldPassword != null &&
+                oldPassword != '' &&
+                newPassword != null &&
+                newPassword != ''){
+
+                cp = String(changePassword(oldPassword, newPassword, req, pool))
+            }
+
+            return res.status(200).send({msg: 'Los datos de usuario han sido actualizados, '+f+', '+cp})
+
             
         } catch (error) {
     
             console.error(error);
             return res.status(500).send({msg: 'Error en el servidor'});
+            
+        }
+    }
+
+    async follow(req: Request, res: Response): Promise<any> {
+
+        try {
+
+            if (req.user) {
+
+                let username = req.params.username
+
+                const pool = await getcon();
+
+                const r1 = await getdatosuser(pool, String(req.user));
+
+                let id = r1.recordset[0].id_usuario
+
+                const r2 = await pool.request()
+                .input('id', sql.Int, id)
+                .input('username', sql.VarChar, username)
+                .query(String(config.q9))
+
+                let estado = r2.recordset[0].estado_usuario
+
+                if (estado != null) {
+
+                    if (estado == 1) {
+
+                        await pool.request()
+                       .input('username', sql.VarChar, username)
+                       .input('estado', sql.TinyInt, 0)
+                       .input('id', sql.Int, id)
+                       .query(String(config.q9_1));
+                        
+                    } else {
+
+                        await pool.request()
+                       .input('username', sql.VarChar, username)
+                       .input('estado', sql.TinyInt, 1)
+                       .input('id', sql.Int, id)
+                       .query(String(config.q9_1));
+                        
+                    }
+                    
+                } else {
+
+                    await pool.request()
+                   .input('username', sql.VarChar, username)
+                   .input('estado', sql.TinyInt, 1)
+                   .input('id', sql.Int, id)
+                   .query(String(config.q8));
+
+                }
+
+                pool.close();
+                return res.status(200).send({msg: 'FOLLOW HECHO'});
+                
+            } else {
+                
+            }
+            
+        } catch (error) {
             
         }
     }
@@ -180,7 +318,7 @@ class Controllersuser {
                 username: nick_usuario,
                 nombre: nombre_usuario,
                 apellido: apellido_usuario,
-                seguidores: followers_usuario
+                followers: followers_usuario
 
             }
             pool.close();
@@ -212,7 +350,7 @@ class Controllersuser {
                 username: nick_usuario,
                 nombre: nombre_usuario,
                 apellido: apellido_usuario,
-                seguidores: followers_usuario
+                followers: followers_usuario
 
             }
             pool.close();

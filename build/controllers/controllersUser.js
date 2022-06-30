@@ -22,6 +22,30 @@ function creartoken(id) {
         return "ERROR en token";
     return "Bearer " + jsonwebtoken_1.default.sign(id, config_1.default.secrettoken);
 }
+function changePassword(op, np, req, pool) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield pool.request()
+            .input('username', req.user)
+            .query(String(config_1.default.q2_1));
+        if (result.recordset[0]) {
+            const pwv = yield bcryptjs_1.default.compare(op, result.recordset[0].pw_usuario);
+            if (pwv) {
+                let rondas = 10;
+                let pwh = yield bcryptjs_1.default.hash(np, rondas);
+                yield pool.request()
+                    .input('nick', mssql_1.default.VarChar, req.user)
+                    .input('pw', mssql_1.default.VarChar, pwh)
+                    .query(String(config_1.default.q1_1));
+                return 'se ha cambiado la password';
+            }
+            else {
+                return 'no se ha podido cambiar la password';
+            }
+        }
+        else {
+        }
+    });
+}
 class Controllersuser {
     constructor() {
     }
@@ -97,30 +121,102 @@ class Controllersuser {
     moduser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { Email, Name, Lastname, Description } = req.body;
+                let { Username, Name, Lastname, oldPassword, newPassword } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const result = yield (0, connection_1.getdatosuser)(pool, String(req.user));
-                if (Email == result.recordset[0].email_usuario &&
-                    Name == result.recordset[0].nombre_usuario &&
-                    Lastname == result.recordset[0].apellido_usuario &&
-                    Description == result.recordset[0].descripcion_usuario) {
+                let { nombre_usuario, apellido_usuario, nick_usuario } = result.recordset[0];
+                if (Username == nick_usuario &&
+                    Name == nombre_usuario &&
+                    Lastname == apellido_usuario &&
+                    oldPassword == null &&
+                    newPassword == null) {
                     pool.close();
                     return res.status(400).send({ msg: 'No se ha cambiado ningun valor...' });
                 }
-                if (Name && Lastname && Email) {
+                if (Name != null && Name != nombre_usuario) {
                     yield pool.request()
-                        .input('email', mssql_1.default.VarChar, Email)
                         .input('nombre', mssql_1.default.VarChar, Name)
-                        .input('apellido', mssql_1.default.VarChar, Lastname)
                         .input('nickname', req.user)
                         .query(String(config_1.default.q5_1));
-                    pool.close();
-                    return res.status(200).send({ msg: 'Se ha actualizado satisfactoriamente' });
                 }
+                if (Lastname != null && Lastname != apellido_usuario) {
+                    yield pool.request()
+                        .input('apellido', mssql_1.default.VarChar, Lastname)
+                        .input('nickname', req.user)
+                        .query(String(config_1.default.q5_2));
+                }
+                let f = 'no se ha intentado cambiar el nick de usuario';
+                if (Username != null && Username != nick_usuario) {
+                    const r1 = yield (0, connection_1.getdatosuser)(pool, String(Username));
+                    if (r1.recordset[0]) {
+                        f = 'el usuario ya existe';
+                    }
+                    else {
+                        yield pool.request()
+                            .input('nick', mssql_1.default.VarChar, Username)
+                            .input('nickname', req.user)
+                            .query(String(config_1.default.q5_3));
+                        f = 'el nick de usuario ha cambiado';
+                    }
+                }
+                let cp = 'no se ha intentado cambiar la password';
+                if (oldPassword != null &&
+                    oldPassword != '' &&
+                    newPassword != null &&
+                    newPassword != '') {
+                    cp = String(changePassword(oldPassword, newPassword, req, pool));
+                }
+                return res.status(200).send({ msg: 'Los datos de usuario han sido actualizados, ' + f + ', ' + cp });
             }
             catch (error) {
                 console.error(error);
                 return res.status(500).send({ msg: 'Error en el servidor' });
+            }
+        });
+    }
+    follow(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (req.user) {
+                    let username = req.params.username;
+                    const pool = yield (0, connection_1.getcon)();
+                    const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
+                    let id = r1.recordset[0].id_usuario;
+                    const r2 = yield pool.request()
+                        .input('id', mssql_1.default.Int, id)
+                        .input('username', mssql_1.default.VarChar, username)
+                        .query(String(config_1.default.q9));
+                    let estado = r2.recordset[0].estado_usuario;
+                    if (estado != null) {
+                        if (estado == 1) {
+                            yield pool.request()
+                                .input('username', mssql_1.default.VarChar, username)
+                                .input('estado', mssql_1.default.TinyInt, 0)
+                                .input('id', mssql_1.default.Int, id)
+                                .query(String(config_1.default.q9_1));
+                        }
+                        else {
+                            yield pool.request()
+                                .input('username', mssql_1.default.VarChar, username)
+                                .input('estado', mssql_1.default.TinyInt, 1)
+                                .input('id', mssql_1.default.Int, id)
+                                .query(String(config_1.default.q9_1));
+                        }
+                    }
+                    else {
+                        yield pool.request()
+                            .input('username', mssql_1.default.VarChar, username)
+                            .input('estado', mssql_1.default.TinyInt, 1)
+                            .input('id', mssql_1.default.Int, id)
+                            .query(String(config_1.default.q8));
+                    }
+                    pool.close();
+                    return res.status(200).send({ msg: 'FOLLOW HECHO' });
+                }
+                else {
+                }
+            }
+            catch (error) {
             }
         });
     }
@@ -135,7 +231,7 @@ class Controllersuser {
                     username: nick_usuario,
                     nombre: nombre_usuario,
                     apellido: apellido_usuario,
-                    seguidores: followers_usuario
+                    followers: followers_usuario
                 };
                 pool.close();
                 return res.status(200).send({ usuario: Usuario });
@@ -157,7 +253,7 @@ class Controllersuser {
                     username: nick_usuario,
                     nombre: nombre_usuario,
                     apellido: apellido_usuario,
-                    seguidores: followers_usuario
+                    followers: followers_usuario
                 };
                 pool.close();
                 return res.status(200).send({ usuario: Usuario });
