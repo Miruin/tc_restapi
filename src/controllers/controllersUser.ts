@@ -196,6 +196,8 @@ class Controllersuser {
 
             let f = 'no se ha intentado cambiar el nick de usuario'
 
+            let token = ''
+
             if(Username != null && Username != nick_usuario){
                 
                 const r1 = await getdatosuser(pool, String(Username));
@@ -211,6 +213,12 @@ class Controllersuser {
                     .input('nickname', req.user)
                     .query(String(config.q3_3));
 
+                    await pool.request()
+                    .input('nick', sql.VarChar, Username)
+                    .input('nickname', req.user)
+                    .query(String(config.q3_4));
+
+                    token = creartoken(Username)
                     f = 'el nick de usuario ha cambiado'
                     
                 }
@@ -224,10 +232,12 @@ class Controllersuser {
                 newPassword != null &&
                 newPassword != ''){
 
-                cp = String(changePassword(oldPassword, newPassword, req, pool))
+                let r = await changePassword(oldPassword, newPassword, req, pool)
+
+                cp = String(r)
             }
 
-            return res.status(200).send({msg: 'Los datos de usuario han sido actualizados, '+f+', '+cp})
+            return res.status(200).send({msg: 'Los datos de usuario han sido actualizados, '+f+', '+cp, newToken: token})
 
             
         } catch (error) {
@@ -241,11 +251,11 @@ class Controllersuser {
     async follow(req: Request, res: Response): Promise<any> {
 
         try {
-
+            
             if (req.user) {
 
                 let username = req.params.username
-
+                
                 const pool = await getcon();
 
                 const r1 = await getdatosuser(pool, String(req.user));
@@ -256,10 +266,10 @@ class Controllersuser {
                 .input('id', sql.Int, id)
                 .input('username', sql.VarChar, username)
                 .query(String(config.q9))
+                
+                if (r2.recordset[0] != undefined) {
 
-                let estado = r2.recordset[0].estado_usuario
-
-                if (estado != null) {
+                    let estado = r2.recordset[0].estado_follow
 
                     if (estado == 1) {
 
@@ -294,9 +304,15 @@ class Controllersuser {
                 
             } else {
                 
+                return res.status(400).send({msg: 'no autorizado'});
             }
             
         } catch (error) {
+
+            console.error(error);
+
+            return res.status(500).send({msg: 'ERROR FOLLOW'});
+            
             
         }
     }
@@ -311,16 +327,17 @@ class Controllersuser {
 
             const result = await getdatosuser(pool, String(usuario));
     
-            let {nick_usuario, followers_usuario, nombre_usuario, apellido_usuario} = result.recordset[0];
-    
+            let {nick_usuario, followers_usuario, name_usuario, lastname_usuario} = result.recordset[0];
+
             const Usuario = {
 
                 username: nick_usuario,
-                nombre: nombre_usuario,
-                apellido: apellido_usuario,
+                nombre: name_usuario,
+                apellido: lastname_usuario,
                 followers: followers_usuario
 
             }
+            
             pool.close();
             
             return res.status(200).send({usuario: Usuario});
@@ -343,13 +360,13 @@ class Controllersuser {
 
             const result = await getdatosuser(pool, username);
     
-            let {nick_usuario, followers_usuario, nombre_usuario, apellido_usuario} = result.recordset[0];
+            let {nick_usuario, followers_usuario, name_usuario, lastname_usuario} = result.recordset[0];
     
             const Usuario = {
 
                 username: nick_usuario,
-                nombre: nombre_usuario,
-                apellido: apellido_usuario,
+                nombre: name_usuario,
+                apellido: lastname_usuario,
                 followers: followers_usuario
 
             }
