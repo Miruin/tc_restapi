@@ -35,7 +35,7 @@ function changePassword(op, np, req, pool) {
                 yield pool.request()
                     .input('nick', mssql_1.default.VarChar, req.user)
                     .input('pw', mssql_1.default.VarChar, pwh)
-                    .query(String(config_1.default.q1_1));
+                    .query(String(config_1.default.q3));
                 return 'se ha cambiado la password';
             }
             else {
@@ -137,13 +137,13 @@ class Controllersuser {
                     yield pool.request()
                         .input('nombre', mssql_1.default.VarChar, Name)
                         .input('nickname', req.user)
-                        .query(String(config_1.default.q5_1));
+                        .query(String(config_1.default.q3_1));
                 }
                 if (Lastname != null && Lastname != apellido_usuario) {
                     yield pool.request()
                         .input('apellido', mssql_1.default.VarChar, Lastname)
                         .input('nickname', req.user)
-                        .query(String(config_1.default.q5_2));
+                        .query(String(config_1.default.q3_2));
                 }
                 let f = 'no se ha intentado cambiar el nick de usuario';
                 if (Username != null && Username != nick_usuario) {
@@ -155,7 +155,7 @@ class Controllersuser {
                         yield pool.request()
                             .input('nick', mssql_1.default.VarChar, Username)
                             .input('nickname', req.user)
-                            .query(String(config_1.default.q5_3));
+                            .query(String(config_1.default.q3_3));
                         f = 'el nick de usuario ha cambiado';
                     }
                 }
@@ -193,14 +193,14 @@ class Controllersuser {
                                 .input('username', mssql_1.default.VarChar, username)
                                 .input('estado', mssql_1.default.TinyInt, 0)
                                 .input('id', mssql_1.default.Int, id)
-                                .query(String(config_1.default.q9_1));
+                                .query(String(config_1.default.q8_1));
                         }
                         else {
                             yield pool.request()
                                 .input('username', mssql_1.default.VarChar, username)
                                 .input('estado', mssql_1.default.TinyInt, 1)
                                 .input('id', mssql_1.default.Int, id)
-                                .query(String(config_1.default.q9_1));
+                                .query(String(config_1.default.q8_1));
                         }
                     }
                     else {

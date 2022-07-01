@@ -30,7 +30,7 @@ async function changePassword(op: string, np: string, req: Request, pool: sql.Co
             await pool.request()
             .input('nick', sql.VarChar, req.user)
             .input('pw', sql.VarChar, pwh)
-            .query(String(config.q1_1));
+            .query(String(config.q3));
 
             return 'se ha cambiado la password';
                         
@@ -183,7 +183,7 @@ class Controllersuser {
                 await pool.request()
                 .input('nombre', sql.VarChar, Name)
                 .input('nickname', req.user)
-                .query(String(config.q5_1));
+                .query(String(config.q3_1));
             }
             
             if(Lastname != null && Lastname != apellido_usuario){
@@ -191,7 +191,7 @@ class Controllersuser {
                 await pool.request()
                 .input('apellido', sql.VarChar, Lastname)
                 .input('nickname', req.user)
-                .query(String(config.q5_2));
+                .query(String(config.q3_2));
             }
 
             let f = 'no se ha intentado cambiar el nick de usuario'
@@ -209,7 +209,7 @@ class Controllersuser {
                     await pool.request()
                     .input('nick', sql.VarChar, Username)
                     .input('nickname', req.user)
-                    .query(String(config.q5_3));
+                    .query(String(config.q3_3));
 
                     f = 'el nick de usuario ha cambiado'
                     
@@ -267,7 +267,7 @@ class Controllersuser {
                        .input('username', sql.VarChar, username)
                        .input('estado', sql.TinyInt, 0)
                        .input('id', sql.Int, id)
-                       .query(String(config.q9_1));
+                       .query(String(config.q8_1));
                         
                     } else {
 
@@ -275,7 +275,7 @@ class Controllersuser {
                        .input('username', sql.VarChar, username)
                        .input('estado', sql.TinyInt, 1)
                        .input('id', sql.Int, id)
-                       .query(String(config.q9_1));
+                       .query(String(config.q8_1));
                         
                     }
                     
