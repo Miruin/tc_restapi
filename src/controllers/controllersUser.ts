@@ -1,6 +1,6 @@
 import { Request, Response} from 'express';
 import sql from 'mssql';
-import bcryptjs from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import config from "../config/config";
@@ -20,12 +20,12 @@ async function changePassword(op: string, np: string, req: Request, pool: sql.Co
     
     if (result.recordset[0]) {
     
-        const pwv = await bcryptjs.compare(op, result.recordset[0].pw_usuario);
+        const pwv = await bcrypt.compare(op, result.recordset[0].pw_usuario);
     
         if (pwv) {
                     
             let rondas = 10;
-            let pwh = await bcryptjs.hash(np, rondas);
+            let pwh = await bcrypt.hash(np, rondas);
 
             await pool.request()
             .input('nick', sql.VarChar, req.user)
@@ -78,7 +78,7 @@ class Controllersuser {
 
 
                     let rondas = 10;
-                    let pwh = await bcryptjs.hash(Password, rondas);
+                    let pwh = await bcrypt.hash(Password, rondas);
                     await pool.request()
                     .input('nick', sql.VarChar, Username)
                     .input('pw', sql.VarChar, pwh)
@@ -122,7 +122,7 @@ class Controllersuser {
     
                 if (result.recordset[0]) {
     
-                    const pwv = await bcryptjs.compare(Password, result.recordset[0].pw_usuario);
+                    const pwv = await bcrypt.compare(Password, result.recordset[0].pw_usuario);
     
                     if (pwv) {
                         

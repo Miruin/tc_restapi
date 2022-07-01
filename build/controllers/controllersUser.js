@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mssql_1 = __importDefault(require("mssql"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config/config"));
 const connection_1 = require("../database/connection");
@@ -28,10 +28,10 @@ function changePassword(op, np, req, pool) {
             .input('username', req.user)
             .query(String(config_1.default.q2_1));
         if (result.recordset[0]) {
-            const pwv = yield bcryptjs_1.default.compare(op, result.recordset[0].pw_usuario);
+            const pwv = yield bcrypt_1.default.compare(op, result.recordset[0].pw_usuario);
             if (pwv) {
                 let rondas = 10;
-                let pwh = yield bcryptjs_1.default.hash(np, rondas);
+                let pwh = yield bcrypt_1.default.hash(np, rondas);
                 yield pool.request()
                     .input('nick', mssql_1.default.VarChar, req.user)
                     .input('pw', mssql_1.default.VarChar, pwh)
@@ -65,7 +65,7 @@ class Controllersuser {
                     }
                     else {
                         let rondas = 10;
-                        let pwh = yield bcryptjs_1.default.hash(Password, rondas);
+                        let pwh = yield bcrypt_1.default.hash(Password, rondas);
                         yield pool.request()
                             .input('nick', mssql_1.default.VarChar, Username)
                             .input('pw', mssql_1.default.VarChar, pwh)
@@ -96,7 +96,7 @@ class Controllersuser {
                         .input('username', Username)
                         .query(String(config_1.default.q2_1));
                     if (result.recordset[0]) {
-                        const pwv = yield bcryptjs_1.default.compare(Password, result.recordset[0].pw_usuario);
+                        const pwv = yield bcrypt_1.default.compare(Password, result.recordset[0].pw_usuario);
                         if (pwv) {
                             pool.close();
                             return res.status(200).send({ token: creartoken(Username), msg: 'Se ha iniciado secion satisfactoriamente' });
