@@ -163,11 +163,7 @@ class Controllersuser {
             const pool = await getcon();
 
             const result = await getdatosuser(pool, String(req.user));
-
-            console.log(result.recordset[0]);
-            
-            
-            
+        
             let { name_usuario, lastname_usuario, nick_usuario} = result.recordset[0]
 
             if ((Username == nick_usuario || Username =='') &&
