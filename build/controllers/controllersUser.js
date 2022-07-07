@@ -124,7 +124,7 @@ class Controllersuser {
                 let { Username, Name, Lastname, oldPassword, newPassword } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const result = yield (0, connection_1.getdatosuser)(pool, String(req.user));
-                console.log(req.user);
+                console.log(result.recordset[0]);
                 let { name_usuario, lastname_usuario, nick_usuario } = result.recordset[0];
                 if ((Username == nick_usuario || Username == '') &&
                     (Name == name_usuario || Name == '') &&
