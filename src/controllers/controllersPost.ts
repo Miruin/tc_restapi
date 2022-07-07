@@ -24,7 +24,7 @@ class Controllerspost {
 
             const r1 = await getdatosuser(pool, String(req.user));
             let id = r1.recordset[0].id_usuario
-            let f =false //https://tcrestapi.herokuapp.com
+            let f =false 
             
             if((req.file != null) ||
             (textPost != null && textPost != '')){    
@@ -32,7 +32,7 @@ class Controllerspost {
                 if (req.file){
 
                     let p = (req.file.path).split('\\')
-                    urlarchivo = 'http://localhost:8080/'+p[1]+'/'+p[2]+'/'+p[3]
+                    urlarchivo = 'https://tcrestapi.herokuapp.com/'+p[1]+'/'+p[2]+'/'+p[3]
                     
                 }
                        
@@ -282,7 +282,7 @@ class Controllerspost {
 
             console.error(error);
 
-            return res.status(500).send({msg: 'ERROR FOLLOW'});
+            return res.status(500).send({msg: 'ERROR error like'});
             
             
         }

@@ -27,13 +27,13 @@ class Controllerspost {
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
                 let id = r1.recordset[0].id_usuario;
-                let f = false; //https://tcrestapi.herokuapp.com
+                let f = false;
                 if ((req.file != null) ||
                     (textPost != null && textPost != '')) {
                     let urlarchivo = '';
                     if (req.file) {
                         let p = (req.file.path).split('\\');
-                        urlarchivo = 'http://localhost:8080/' + p[1] + '/' + p[2] + '/' + p[3];
+                        urlarchivo = 'https://tcrestapi.herokuapp.com/' + p[1] + '/' + p[2] + '/' + p[3];
                     }
                     yield pool.request()
                         .input('iduser', mssql_1.default.VarChar, id)
@@ -214,7 +214,7 @@ class Controllerspost {
             }
             catch (error) {
                 console.error(error);
-                return res.status(500).send({ msg: 'ERROR FOLLOW' });
+                return res.status(500).send({ msg: 'ERROR error like' });
             }
         });
     }
