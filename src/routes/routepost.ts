@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import passport from 'passport';
 
 import controllerspost from '../controllers/controllersPost';
+import { upload } from '../helpers/service';
 
 const auth = passport.authenticate("jwt", { session: false });
 

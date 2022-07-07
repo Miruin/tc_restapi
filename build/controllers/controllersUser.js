@@ -125,21 +125,22 @@ class Controllersuser {
                 const pool = yield (0, connection_1.getcon)();
                 const result = yield (0, connection_1.getdatosuser)(pool, String(req.user));
                 let { name_usuario, lastname_usuario, nick_usuario } = result.recordset[0];
-                if (Username == nick_usuario &&
-                    Name == name_usuario &&
-                    Lastname == lastname_usuario &&
-                    oldPassword == null &&
-                    newPassword == null) {
+                if ((Username == nick_usuario || Username == '') &&
+                    (Name == name_usuario || Name == '') &&
+                    (Lastname == lastname_usuario || Lastname == '') &&
+                    (oldPassword == null || oldPassword == '') &&
+                    (newPassword == null || newPassword == '')) {
                     pool.close();
                     return res.status(400).send({ msg: 'No se ha cambiado ningun valor...' });
                 }
-                if (Name != null && Name != name_usuario) {
+                //https://tcrestapi.herokuapp.com/perfil
+                if (Name != null && Name != name_usuario && Name != '') {
                     yield pool.request()
                         .input('nombre', mssql_1.default.VarChar, Name)
                         .input('nickname', req.user)
                         .query(String(config_1.default.q3_1));
                 }
-                if (Lastname != null && Lastname != lastname_usuario) {
+                if (Lastname != null && Lastname != lastname_usuario && Lastname != '') {
                     yield pool.request()
                         .input('apellido', mssql_1.default.VarChar, Lastname)
                         .input('nickname', req.user)
@@ -147,7 +148,7 @@ class Controllersuser {
                 }
                 let f = 'no se ha intentado cambiar el nick de usuario';
                 let token = '';
-                if (Username != null && Username != nick_usuario) {
+                if (Username != null && Username != nick_usuario && Username != '') {
                     const r1 = yield (0, connection_1.getdatosuser)(pool, String(Username));
                     if (r1.recordset[0]) {
                         f = 'el usuario ya existe';

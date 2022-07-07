@@ -166,19 +166,19 @@ class Controllersuser {
             
             let { name_usuario, lastname_usuario, nick_usuario} = result.recordset[0]
 
-            if (Username == nick_usuario &&
-                Name == name_usuario &&
-                Lastname == lastname_usuario &&
-                oldPassword == null &&
-                newPassword == null) {
+            if ((Username == nick_usuario || Username =='') &&
+                (Name == name_usuario || Name == '') &&
+                (Lastname == lastname_usuario || Lastname == '') &&
+                (oldPassword == null || oldPassword =='') &&
+                (newPassword == null || newPassword == '')) {
     
                 pool.close();
                 return res.status(400).send({msg: 'No se ha cambiado ningun valor...'});
                 
             } 
     
-        
-            if(Name != null && Name != name_usuario){
+        //https://tcrestapi.herokuapp.com/perfil
+            if(Name != null && Name != name_usuario && Name != ''){
 
                 await pool.request()
                 .input('nombre', sql.VarChar, Name)
@@ -186,7 +186,7 @@ class Controllersuser {
                 .query(String(config.q3_1));
             }
             
-            if(Lastname != null && Lastname != lastname_usuario){
+            if(Lastname != null && Lastname != lastname_usuario && Lastname != ''){
 
                 await pool.request()
                 .input('apellido', sql.VarChar, Lastname)
@@ -198,7 +198,7 @@ class Controllersuser {
 
             let token = ''
 
-            if(Username != null && Username != nick_usuario){
+            if(Username != null && Username != nick_usuario && Username != ''){
                 
                 const r1 = await getdatosuser(pool, String(Username));
 
