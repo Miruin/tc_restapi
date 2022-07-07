@@ -31,7 +31,7 @@ class Controllerspost {
                 let urlarchivo = ''
                 if (req.file){
 
-                    let p = (req.file.path).split('\\')
+                    let p = (req.file.path).split('/')
                     urlarchivo = 'https://tcrestapi.herokuapp.com/'+p[1]+'/'+p[2]+'/'+p[3]
                     
                 }
