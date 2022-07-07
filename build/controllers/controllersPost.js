@@ -22,7 +22,6 @@ class Controllerspost {
     crearPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.file);
                 let { textPost, repostId, repostEstado } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));

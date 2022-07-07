@@ -17,8 +17,6 @@ class Controllerspost {
         
         try {
             
-            console.log(req.file);
-            
             let {textPost,  repostId, repostEstado } = req.body;
             const pool = await getcon();
 
