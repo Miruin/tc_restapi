@@ -5,6 +5,7 @@ import passport from 'passport'
 import middleware from './middleware/auth'
 import config from './config/config';
 import rutauser from './routes/routeuser';
+import rutapost from './routes/routepost'
 
 
 class server {
@@ -22,8 +23,6 @@ class server {
     config() {
 
         this.app.set('port', config.port);
-       
-        //middleware
 
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(express.json());
@@ -35,6 +34,7 @@ class server {
     routes() {
 
         this.app.use(rutauser);
+        this.app.use(rutapost)
     }
     
     start() {

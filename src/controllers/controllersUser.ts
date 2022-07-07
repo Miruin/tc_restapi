@@ -286,7 +286,7 @@ class Controllersuser {
                        .input('estado', sql.TinyInt, 1)
                        .input('id', sql.Int, id)
                        .query(String(config.q8_1));
-                        
+                    
                     }
                     
                 } else {

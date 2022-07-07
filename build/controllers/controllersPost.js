@@ -12,74 +12,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs_1 = __importDefault(require("fs"));
-const mime_types_1 = __importDefault(require("mime-types"));
 const mssql_1 = __importDefault(require("mssql"));
-const path_1 = __importDefault(require("path"));
 const config_1 = __importDefault(require("../config/config"));
 const connection_1 = require("../database/connection");
 class Controllerspost {
     constructor() {
     }
     crearPost(req, res) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            let { descripcionpost, archivoUri, archivoName, archivoType } = req.body;
-            let nick = req.user;
-            let autor = req.user;
             try {
+                let { textPost, archivoUri, repostId, repostEstado } = req.body;
                 const pool = yield (0, connection_1.getcon)();
-                if (!req.file) {
-                    if (archivoUri && archivoName && archivoType) {
-                        console.log('a trabajar la imagen malditasea...');
-                        let archivoMetaData = archivoUri.split(",");
-                        let urldirectorio = "public/post/" + req.user;
-                        let mimeT = archivoName.split('.');
-                        if (archivoType == 'image/jpg') {
-                            archivoType = 'image/jpeg';
-                        }
-                        let name_archivo = Date.now() + "-" + req.user + "." + mime_types_1.default.extension(archivoType);
-                        let urlarchivo = "https://restapi-twitterclone1.herokuapp.com/post/" + req.user + "/" + name_archivo;
-                        if (!fs_1.default.existsSync(urldirectorio)) {
-                            fs_1.default.mkdirSync(urldirectorio, { recursive: true });
-                        }
-                        fs_1.default.writeFile(urldirectorio + '/' + name_archivo, archivoMetaData[1], 'base64', (error) => {
-                            if (error) {
-                                console.error(error);
-                            }
-                        });
-                        yield pool.request()
-                            .input('nick', mssql_1.default.VarChar, nick)
-                            .input('autor', mssql_1.default.VarChar, autor)
-                            .input('descripcionpost', mssql_1.default.VarChar, descripcionpost)
-                            .input('archivourlpost', mssql_1.default.VarChar, urlarchivo)
-                            .query(String(config_1.default.q4));
-                        pool.close();
-                        return res.status(200).send({ msg: 'Se ha guardado el post satisfactoriamente' });
-                    }
-                    if (descripcionpost) {
-                        yield pool.request()
-                            .input('nick', mssql_1.default.VarChar, nick)
-                            .input('autor', mssql_1.default.VarChar, autor)
-                            .input('descripcionpost', mssql_1.default.VarChar, descripcionpost)
-                            .query(String(config_1.default.q3));
-                        pool.close();
-                        return res.status(200).send({ msg: 'Se ha guardado el post satisfactoriamente' });
-                    }
-                    pool.close();
-                    return res.status(400).send({ msg: 'No se han llenado los campos' });
-                }
-                else {
-                    let urlarchivo = "https://restapi-twitterclone1.herokuapp.com/post/" + req.user + "/" + ((_a = req.file) === null || _a === void 0 ? void 0 : _a.filename);
+                const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
+                let id = r1.recordset[0].id_usuario;
+                let f = false;
+                if ((archivoUri != null && archivoUri != '') ||
+                    (textPost != null && textPost != '')) {
                     yield pool.request()
-                        .input('nick', mssql_1.default.VarChar, nick)
-                        .input('autor', mssql_1.default.VarChar, autor)
-                        .input('descripcionpost', mssql_1.default.VarChar, descripcionpost)
-                        .input('archivourlpost', mssql_1.default.VarChar, urlarchivo)
+                        .input('iduser', mssql_1.default.VarChar, id)
+                        .input('url', mssql_1.default.VarChar, archivoUri)
+                        .input('texto', mssql_1.default.VarChar, textPost)
+                        .input('repost', mssql_1.default.TinyInt, 0)
                         .query(String(config_1.default.q4));
-                    pool.close();
-                    return res.status(200).send({ msg: 'Se ha guardado el post satisfactoriamente' });
+                    f = true;
                 }
+                if (repostId != null && repostEstado != null) {
+                    yield pool.request()
+                        .input('iduser', mssql_1.default.VarChar, id)
+                        .input('repostid', mssql_1.default.VarChar, repostId)
+                        .input('repostestado ', mssql_1.default.VarChar, repostEstado)
+                        .query(String(config_1.default.q5));
+                    f = true;
+                }
+                if (f) {
+                    pool.close();
+                    return res.status(200).send({ msg: 'POST creado' });
+                }
+                pool.close();
+                return res.status(400).send({ msg: 'no se ha destectado valores validos' });
             }
             catch (error) {
                 console.error(error);
@@ -89,43 +59,25 @@ class Controllerspost {
     }
     borrarPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            let id = req.params.id;
-            let nick = req.user;
             try {
-                let e = null;
                 const pool = yield (0, connection_1.getcon)();
+                const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
+                let iduser = r1.recordset[0].id_usuario;
+                let idpost = req.params.id;
                 const result = yield pool.request()
-                    .input('id', id)
-                    .query(String(config_1.default.q5));
+                    .input('idu', mssql_1.default.Int, iduser)
+                    .input('idp', mssql_1.default.Int, idpost)
+                    .query(String(config_1.default.q6));
                 if (result.recordset[0]) {
-                    if (!(result.recordset[0].nick_usuario == nick))
-                        return res.status(400).send({ msg: 'no tienes permitido borrar post de otros usuarios' });
-                    if (result.recordset[0].archivourl_post) {
-                        let urlarchivo = 'public/post/' + nick + '/' + path_1.default.basename(result.recordset[0].archivourl_post);
-                        fs_1.default.stat(urlarchivo, (error, stats) => {
-                            if (error) {
-                                console.error(error);
-                                e = error;
-                            }
-                            else {
-                                fs_1.default.unlink(urlarchivo, (error) => {
-                                    if (error) {
-                                        e = error;
-                                        console.error(error);
-                                    }
-                                });
-                            }
-                        });
-                    }
                     yield pool.request()
-                        .input('id', id)
-                        .query(String(config_1.default.q6));
+                        .input('id', idpost)
+                        .query(String(config_1.default.q7));
                     pool.close();
-                    return res.status(200).send({ msg: 'Se ha borrado el post satisfactoriamente', msgErr: e });
+                    return res.status(200).send({ msg: 'Se ha borrado el post satisfactoriamente' });
                 }
                 else {
                     pool.close();
-                    return res.status(400).send({ msg: 'Error no se ha encontrado el post' });
+                    return res.status(400).send({ msg: 'no tienes permitido borrar post de otros usuarios o este post no existe' });
                 }
             }
             catch (error) {
@@ -134,47 +86,119 @@ class Controllerspost {
             }
         });
     }
-    getMyPosts(req, res) {
+    getPosts(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            let username = req.user;
             try {
+                let username = req.params.username;
+                console.log(username);
+                if (username == ' ') {
+                    if (!req.user)
+                        return res.status(400).send({ msg: 'no estas logeado' });
+                    username = String(req.user);
+                }
                 const pool = yield (0, connection_1.getcon)();
-                const result = yield pool.request()
-                    .input('username', username)
-                    .query(String(config_1.default.q7));
-                if (result.recordset[0]) {
+                const r1 = yield (0, connection_1.getdatosuser)(pool, String(username));
+                let iduser = r1.recordset[0].id_usuario;
+                const arrUser = [];
+                arrUser.push(iduser);
+                const rFollow = yield pool.request()
+                    .input('iduser', iduser)
+                    .query(String(config_1.default.q6_3));
+                for (const key in rFollow.recordset) {
+                    const r2 = yield (0, connection_1.getdatosuser)(pool, String(rFollow.recordset[key].usuario_follow));
+                    let iduser = r2.recordset[0].id_usuario;
+                    arrUser.push(iduser);
+                }
+                if (iduser == arrUser[0]) {
+                    const datos = [];
+                    for (const key in arrUser) {
+                        const rUser = yield pool.request()
+                            .input('iduser', arrUser[key])
+                            .query(String(config_1.default.q6_1));
+                        for (const i in rUser.recordset) {
+                            if (rUser.recordset[i].re_post == 0) {
+                                const dato = {
+                                    nick: rUser.recordset[i].nick_usuario,
+                                    img: rUser.recordset[i].imgurl_post,
+                                    texto: rUser.recordset[i].texto_post,
+                                    idpost: rUser.recordset[i].id_post,
+                                    likes: rUser.recordset[i].likes_post
+                                };
+                                datos.push(dato);
+                            }
+                            else {
+                                const datop = yield pool.request()
+                                    .input('idpost', rUser.recordset[i].id_re_post)
+                                    .query(String(config_1.default.q6_2));
+                                const dato = {
+                                    nick: rUser.recordset[i].nick_usuario,
+                                    idpost: rUser.recordset[i].id_post,
+                                    img: datop.recordset[0].imgurl_post,
+                                    texto: datop.recordset[0].texto_post,
+                                    idrepost: datop.recordset[0].id_post,
+                                    repost: 1,
+                                    likes: datop.recordset[0].likes_post
+                                };
+                                datos.push(dato);
+                            }
+                        }
+                    }
                     pool.close();
-                    return res.status(200).send(result.recordset);
+                    return res.status(200).send(datos);
                 }
                 pool.close();
-                return res.status(400).send({ msg: 'No has creado ningun post' });
+                return res.status(400).send({ msg: 'No se ha creado ningun post de este usuario o no esta siguiendo a nadie' });
             }
             catch (error) {
                 console.error(error);
+                return res.status(500).send({ msg: 'Error en el servidor ' });
             }
         });
     }
-    getDatosPosts(req, res) {
+    like(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            let username = req.params.username;
             try {
-                const pool = yield (0, connection_1.getcon)();
-                const result = yield pool.request()
-                    .input('username', username)
-                    .query(String(config_1.default.q7));
-                if (result.recordset) {
+                if (req.user) {
+                    let idpost = req.params.id;
+                    const pool = yield (0, connection_1.getcon)();
+                    const r2 = yield pool.request()
+                        .input('nick', mssql_1.default.VarChar, req.user)
+                        .input('idpost', mssql_1.default.Int, idpost)
+                        .query(String(config_1.default.q10));
+                    if (r2.recordset[0] != undefined) {
+                        let estado = r2.recordset[0].estado_like;
+                        if (estado == 1) {
+                            yield pool.request()
+                                .input('username', mssql_1.default.VarChar, req.user)
+                                .input('estado', mssql_1.default.TinyInt, 0)
+                                .input('idpost', mssql_1.default.Int, idpost)
+                                .query(String(config_1.default.q10_2));
+                        }
+                        else {
+                            yield pool.request()
+                                .input('username', mssql_1.default.VarChar, req.user)
+                                .input('estado', mssql_1.default.TinyInt, 1)
+                                .input('idpost', mssql_1.default.Int, idpost)
+                                .query(String(config_1.default.q10_2));
+                        }
+                    }
+                    else {
+                        yield pool.request()
+                            .input('nick', mssql_1.default.VarChar, req.user)
+                            .input('estado', mssql_1.default.TinyInt, 1)
+                            .input('idpost', mssql_1.default.Int, idpost)
+                            .query(String(config_1.default.q10_1));
+                    }
                     pool.close();
-                    return res.status(200).send(result.recordset);
+                    return res.status(200).send({ msg: 'like HECHO' });
                 }
-                const result1 = yield (0, connection_1.getdatosuser)(pool, username);
-                if (!result1.recordset[0])
-                    return res.status(400).send({ msg: 'Error  no se encuentra el usuario' });
-                pool.close();
-                return res.status(200).send({ msg: 'Este usuario no tiene creado ningun post o los ha eliminado' });
+                else {
+                    return res.status(400).send({ msg: 'no autorizado' });
+                }
             }
             catch (error) {
                 console.error(error);
-                return res.status(500).send({ msg: 'Error en el servidor al pedir datos' });
+                return res.status(500).send({ msg: 'ERROR FOLLOW' });
             }
         });
     }
