@@ -164,11 +164,11 @@ class Controllersuser {
 
             const result = await getdatosuser(pool, String(req.user));
             
-            let { nombre_usuario, apellido_usuario, nick_usuario} = result.recordset[0]
+            let { name_usuario, lastname_usuario, nick_usuario} = result.recordset[0]
 
             if (Username == nick_usuario &&
-                Name == nombre_usuario &&
-                Lastname == apellido_usuario &&
+                Name == name_usuario &&
+                Lastname == lastname_usuario &&
                 oldPassword == null &&
                 newPassword == null) {
     
@@ -178,7 +178,7 @@ class Controllersuser {
             } 
     
         
-            if(Name != null && Name != nombre_usuario){
+            if(Name != null && Name != name_usuario){
 
                 await pool.request()
                 .input('nombre', sql.VarChar, Name)
@@ -186,7 +186,7 @@ class Controllersuser {
                 .query(String(config.q3_1));
             }
             
-            if(Lastname != null && Lastname != apellido_usuario){
+            if(Lastname != null && Lastname != lastname_usuario){
 
                 await pool.request()
                 .input('apellido', sql.VarChar, Lastname)

@@ -124,22 +124,22 @@ class Controllersuser {
                 let { Username, Name, Lastname, oldPassword, newPassword } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const result = yield (0, connection_1.getdatosuser)(pool, String(req.user));
-                let { nombre_usuario, apellido_usuario, nick_usuario } = result.recordset[0];
+                let { name_usuario, lastname_usuario, nick_usuario } = result.recordset[0];
                 if (Username == nick_usuario &&
-                    Name == nombre_usuario &&
-                    Lastname == apellido_usuario &&
+                    Name == name_usuario &&
+                    Lastname == lastname_usuario &&
                     oldPassword == null &&
                     newPassword == null) {
                     pool.close();
                     return res.status(400).send({ msg: 'No se ha cambiado ningun valor...' });
                 }
-                if (Name != null && Name != nombre_usuario) {
+                if (Name != null && Name != name_usuario) {
                     yield pool.request()
                         .input('nombre', mssql_1.default.VarChar, Name)
                         .input('nickname', req.user)
                         .query(String(config_1.default.q3_1));
                 }
-                if (Lastname != null && Lastname != apellido_usuario) {
+                if (Lastname != null && Lastname != lastname_usuario) {
                     yield pool.request()
                         .input('apellido', mssql_1.default.VarChar, Lastname)
                         .input('nickname', req.user)
