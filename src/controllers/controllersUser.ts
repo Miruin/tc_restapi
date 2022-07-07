@@ -163,21 +163,22 @@ class Controllersuser {
             const pool = await getcon();
 
             const result = await getdatosuser(pool, String(req.user));
+            console.log(req.user);
+            
             
             let { name_usuario, lastname_usuario, nick_usuario} = result.recordset[0]
 
             if ((Username == nick_usuario || Username =='') &&
                 (Name == name_usuario || Name == '') &&
                 (Lastname == lastname_usuario || Lastname == '') &&
-                (oldPassword == null || oldPassword =='') &&
-                (newPassword == null || newPassword == '')) {
+                ((oldPassword == null || oldPassword =='') ||
+                (newPassword == null || newPassword == ''))) {
     
                 pool.close();
                 return res.status(400).send({msg: 'No se ha cambiado ningun valor...'});
                 
             } 
     
-        //https://tcrestapi.herokuapp.com/perfil
             if(Name != null && Name != name_usuario && Name != ''){
 
                 await pool.request()

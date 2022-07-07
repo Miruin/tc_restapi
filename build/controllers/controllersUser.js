@@ -124,16 +124,16 @@ class Controllersuser {
                 let { Username, Name, Lastname, oldPassword, newPassword } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const result = yield (0, connection_1.getdatosuser)(pool, String(req.user));
+                console.log(req.user);
                 let { name_usuario, lastname_usuario, nick_usuario } = result.recordset[0];
                 if ((Username == nick_usuario || Username == '') &&
                     (Name == name_usuario || Name == '') &&
                     (Lastname == lastname_usuario || Lastname == '') &&
-                    (oldPassword == null || oldPassword == '') &&
-                    (newPassword == null || newPassword == '')) {
+                    ((oldPassword == null || oldPassword == '') ||
+                        (newPassword == null || newPassword == ''))) {
                     pool.close();
                     return res.status(400).send({ msg: 'No se ha cambiado ningun valor...' });
                 }
-                //https://tcrestapi.herokuapp.com/perfil
                 if (Name != null && Name != name_usuario && Name != '') {
                     yield pool.request()
                         .input('nombre', mssql_1.default.VarChar, Name)
