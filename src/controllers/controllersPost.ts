@@ -1,5 +1,7 @@
 import { Request, Response} from 'express';
 import sql from 'mssql';
+import fs from 'fs';
+import mimeTypes from 'mime-types';
 
 import config from "../config/config";
 import { getcon, getdatosuser } from '../database/connection';
@@ -15,18 +17,28 @@ class Controllerspost {
         
         try {
             
-            let {textPost, archivoUri, repostId, repostEstado } = req.body;
+            console.log(req.file);
+            
+            let {textPost,  repostId, repostEstado } = req.body;
             const pool = await getcon();
 
             const r1 = await getdatosuser(pool, String(req.user));
             let id = r1.recordset[0].id_usuario
-            let f =false
+            let f =false //https://tcrestapi.herokuapp.com
             
-            if((archivoUri != null && archivoUri != '') ||
-            (textPost != null && textPost != '')){                    
+            if((req.file != null) ||
+            (textPost != null && textPost != '')){    
+                let urlarchivo = ''
+                if (req.file){
+
+                    let p = (req.file.path).split('\\')
+                    urlarchivo = 'http://localhost:8080/'+p[1]+'/'+p[2]+'/'+p[3]
+                    
+                }
+                       
                 await pool.request()
                 .input('iduser', sql.VarChar, id)
-                .input('url', sql.VarChar, archivoUri)
+                .input('url', sql.VarChar, urlarchivo)
                 .input('texto', sql.VarChar, textPost)
                 .input('repost', sql.TinyInt, 0)
                 .query(String(config.q4)); 
@@ -78,6 +90,13 @@ class Controllerspost {
             
             
             if (result.recordset[0]) {
+
+                let url = (result.recordset[0].imgurl_post).split('/')
+                let p = 'public/post/'+url[4]+'/'+url[5]
+                fs.stat(p, (error) =>{
+                    if(error) console.error(error);
+                    else fs.unlink(p,(error) => {if (error) console.error(error);});   
+                });
                 await pool.request()
                 .input('id', idpost)
                 .query(String(config.q7));

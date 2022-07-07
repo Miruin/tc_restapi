@@ -26,7 +26,7 @@ class Rutaspost{
    
     routes() {
         
-        this.router.post('/post', optionalAuth, controllerspost.crearPost);
+        this.router.post('/post', optionalAuth, upload.single('archivo'), controllerspost.crearPost);
 
         this.router.get('/posts/:username', optionalAuth, controllerspost.getPosts);
 

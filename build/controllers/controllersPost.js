@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mssql_1 = __importDefault(require("mssql"));
+const fs_1 = __importDefault(require("fs"));
 const config_1 = __importDefault(require("../config/config"));
 const connection_1 = require("../database/connection");
 class Controllerspost {
@@ -21,16 +22,22 @@ class Controllerspost {
     crearPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { textPost, archivoUri, repostId, repostEstado } = req.body;
+                console.log(req.file);
+                let { textPost, repostId, repostEstado } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
                 let id = r1.recordset[0].id_usuario;
-                let f = false;
-                if ((archivoUri != null && archivoUri != '') ||
+                let f = false; //https://tcrestapi.herokuapp.com
+                if ((req.file != null) ||
                     (textPost != null && textPost != '')) {
+                    let urlarchivo = '';
+                    if (req.file) {
+                        let p = (req.file.path).split('\\');
+                        urlarchivo = 'http://localhost:8080/' + p[1] + '/' + p[2] + '/' + p[3];
+                    }
                     yield pool.request()
                         .input('iduser', mssql_1.default.VarChar, id)
-                        .input('url', mssql_1.default.VarChar, archivoUri)
+                        .input('url', mssql_1.default.VarChar, urlarchivo)
                         .input('texto', mssql_1.default.VarChar, textPost)
                         .input('repost', mssql_1.default.TinyInt, 0)
                         .query(String(config_1.default.q4));
@@ -69,6 +76,15 @@ class Controllerspost {
                     .input('idp', mssql_1.default.Int, idpost)
                     .query(String(config_1.default.q6));
                 if (result.recordset[0]) {
+                    let url = (result.recordset[0].imgurl_post).split('/');
+                    let p = 'public/post/' + url[4] + '/' + url[5];
+                    fs_1.default.stat(p, (error) => {
+                        if (error)
+                            console.error(error);
+                        else
+                            fs_1.default.unlink(p, (error) => { if (error)
+                                console.error(error); });
+                    });
                     yield pool.request()
                         .input('id', idpost)
                         .query(String(config_1.default.q7));
