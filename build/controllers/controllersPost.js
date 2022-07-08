@@ -41,11 +41,8 @@ class Controllerspost {
                             let urldirectorio = "public/post/" + req.user;
                             let arr = String(archivoMetaData[0]).split('data:');
                             let data = arr[1];
-                            console.log(data);
                             let arr2 = String(data).split(';base64');
-                            console.log(arr2);
                             let mimeT = arr2[0];
-                            console.log(mimeT);
                             let name_archivo = Date.now() + "-" + req.user + "." + mime_types_1.default.extension(String(mimeT));
                             urlarchivo = "https://tcrestapi.herokuapp.com/post/" + req.user + "/" + name_archivo;
                             if (!fs_1.default.existsSync(urldirectorio)) {
@@ -130,7 +127,7 @@ class Controllerspost {
             try {
                 let username = req.params.username;
                 console.log(username);
-                if (username == ' ') {
+                if (username == '0') {
                     if (!req.user)
                         return res.status(400).send({ msg: 'no estas logeado' });
                     username = String(req.user);
