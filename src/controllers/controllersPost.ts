@@ -162,6 +162,7 @@ class Controllerspost {
                 username = String(req.user)
                 
             }
+            console.log(username);
             
 
             const pool = await getcon();
@@ -182,7 +183,7 @@ class Controllerspost {
                 arrUser.push(iduser);
             }
 
-            if (iduser == arrUser[0]) {
+            if (iduser) {
 
                 type posts = {
                     nick: string;

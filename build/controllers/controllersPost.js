@@ -132,6 +132,7 @@ class Controllerspost {
                         return res.status(400).send({ msg: 'no estas logeado' });
                     username = String(req.user);
                 }
+                console.log(username);
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(username));
                 let iduser = r1.recordset[0].id_usuario;
@@ -145,7 +146,7 @@ class Controllerspost {
                     let iduser = r2.recordset[0].id_usuario;
                     arrUser.push(iduser);
                 }
-                if (iduser == arrUser[0]) {
+                if (iduser) {
                     const datos = [];
                     for (const key in arrUser) {
                         const rUser = yield pool.request()
