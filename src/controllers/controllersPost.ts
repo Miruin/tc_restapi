@@ -16,6 +16,9 @@ class Controllerspost {
     async crearPost(req: Request, res: Response): Promise<any> { 
         
         try {
+
+            console.log(req.body);
+            
             
             let {textPost, archivoUri,  repostId, repostEstado } = req.body.data;
             console.log(archivoUri);

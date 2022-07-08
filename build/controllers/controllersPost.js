@@ -23,6 +23,7 @@ class Controllerspost {
     crearPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(req.body);
                 let { textPost, archivoUri, repostId, repostEstado } = req.body.data;
                 console.log(archivoUri);
                 console.log(textPost);
