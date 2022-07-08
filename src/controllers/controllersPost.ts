@@ -154,17 +154,12 @@ class Controllerspost {
         try {
 
             let username = req.params.username;
-
-            console.log(username);
                 
             if (username == '0') {
                 if (!req.user) return res.status(400).send({msg: 'no estas logeado'})
                 username = String(req.user)
-                
             }
-            console.log(username);
-            
-
+    
             const pool = await getcon();
 
             const r1 = await getdatosuser(pool, String(username));
@@ -183,70 +178,67 @@ class Controllerspost {
                 arrUser.push(iduser);
             }
 
-            if (iduser) {
+            type posts = {
+                nick: string;
+                img: string;
+                texto: string;
+                idpost: number;
+                likes: number;
+                repost?: number;
+                idrepost?: number;
 
-                type posts = {
-                    nick: string;
-                    img: string;
-                    texto: string;
-                    idpost: number;
-                    likes: number;
-                    repost?: number;
-                    idrepost?: number;
+            }
+            const datos: posts[] = [];
 
-                }
-                const datos: posts[] = [];
-
-                for (const key in arrUser) {
+            for (const key in arrUser) {
                     
-                    const rUser = await pool.request()
-                    .input('iduser', arrUser[key])
-                    .query(String(config.q6_1));
+                const rUser = await pool.request()
+                .input('iduser', arrUser[key])
+                .query(String(config.q6_1));
 
-                    for (const i in rUser.recordset) {
+                for (const i in rUser.recordset) {
 
-                        if (rUser.recordset[i].re_post == 0) {
-                            const dato: posts = {
+                    if (rUser.recordset[i].re_post == 0) {
+                        const dato: posts = {
     
-                                nick: rUser.recordset[i].nick_usuario,
-                                img: rUser.recordset[i].imgurl_post,
-                                texto: rUser.recordset[i].texto_post,
-                                idpost: rUser.recordset[i].id_post,
-                                likes: rUser.recordset[i].likes_post
+                            nick: rUser.recordset[i].nick_usuario,
+                            img: rUser.recordset[i].imgurl_post,
+                            texto: rUser.recordset[i].texto_post,
+                            idpost: rUser.recordset[i].id_post,
+                            likes: rUser.recordset[i].likes_post
             
-                            }
-                            datos.push(dato);
-                        } else {
-    
-                            const datop = await pool.request()
-                            .input('idpost', rUser.recordset[i].id_re_post)
-                            .query(String(config.q6_2));
-                            const dato: posts = {
-    
-                                nick: rUser.recordset[i].nick_usuario,
-                                idpost: rUser.recordset[i].id_post,
-                                img: datop.recordset[0].imgurl_post,
-                                texto: datop.recordset[0].texto_post,
-                                idrepost: datop.recordset[0].id_post,
-                                repost: 1,
-                                likes: datop.recordset[0].likes_post
-            
-                            }
-                            datos.push(dato);
-                            
                         }
-                        
+                        datos.push(dato);
+                    } else {
+    
+                        const datop = await pool.request()
+                        .input('idpost', rUser.recordset[i].id_re_post)
+                        .query(String(config.q6_2));
+                        const dato: posts = {
+    
+                            nick: rUser.recordset[i].nick_usuario,
+                            idpost: rUser.recordset[i].id_post,
+                            img: datop.recordset[0].imgurl_post,
+                            texto: datop.recordset[0].texto_post,
+                            idrepost: datop.recordset[0].id_post,
+                            repost: 1,
+                            likes: datop.recordset[0].likes_post
+            
+                        }
+                        datos.push(dato);         
                     }
-
+         
                 }
-
-
+                
+            }
+            
+            if(datos.length != 0){
                 pool.close();
                 return res.status(200).send(datos);
+            }else{
+                pool.close();
+                return res.status(400).send({msg: 'No se ha creado ningun post de este usuario o no esta siguiendo a nadie'});
             }
-
-            pool.close();
-            return res.status(400).send({msg: 'No se ha creado ningun post de este usuario o no esta siguiendo a nadie'});
             
         } catch (error) {
             

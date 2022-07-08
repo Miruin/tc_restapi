@@ -126,13 +126,11 @@ class Controllerspost {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let username = req.params.username;
-                console.log(username);
                 if (username == '0') {
                     if (!req.user)
                         return res.status(400).send({ msg: 'no estas logeado' });
                     username = String(req.user);
                 }
-                console.log(username);
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(username));
                 let iduser = r1.recordset[0].id_usuario;
@@ -146,45 +144,47 @@ class Controllerspost {
                     let iduser = r2.recordset[0].id_usuario;
                     arrUser.push(iduser);
                 }
-                if (iduser) {
-                    const datos = [];
-                    for (const key in arrUser) {
-                        const rUser = yield pool.request()
-                            .input('iduser', arrUser[key])
-                            .query(String(config_1.default.q6_1));
-                        for (const i in rUser.recordset) {
-                            if (rUser.recordset[i].re_post == 0) {
-                                const dato = {
-                                    nick: rUser.recordset[i].nick_usuario,
-                                    img: rUser.recordset[i].imgurl_post,
-                                    texto: rUser.recordset[i].texto_post,
-                                    idpost: rUser.recordset[i].id_post,
-                                    likes: rUser.recordset[i].likes_post
-                                };
-                                datos.push(dato);
-                            }
-                            else {
-                                const datop = yield pool.request()
-                                    .input('idpost', rUser.recordset[i].id_re_post)
-                                    .query(String(config_1.default.q6_2));
-                                const dato = {
-                                    nick: rUser.recordset[i].nick_usuario,
-                                    idpost: rUser.recordset[i].id_post,
-                                    img: datop.recordset[0].imgurl_post,
-                                    texto: datop.recordset[0].texto_post,
-                                    idrepost: datop.recordset[0].id_post,
-                                    repost: 1,
-                                    likes: datop.recordset[0].likes_post
-                                };
-                                datos.push(dato);
-                            }
+                const datos = [];
+                for (const key in arrUser) {
+                    const rUser = yield pool.request()
+                        .input('iduser', arrUser[key])
+                        .query(String(config_1.default.q6_1));
+                    for (const i in rUser.recordset) {
+                        if (rUser.recordset[i].re_post == 0) {
+                            const dato = {
+                                nick: rUser.recordset[i].nick_usuario,
+                                img: rUser.recordset[i].imgurl_post,
+                                texto: rUser.recordset[i].texto_post,
+                                idpost: rUser.recordset[i].id_post,
+                                likes: rUser.recordset[i].likes_post
+                            };
+                            datos.push(dato);
+                        }
+                        else {
+                            const datop = yield pool.request()
+                                .input('idpost', rUser.recordset[i].id_re_post)
+                                .query(String(config_1.default.q6_2));
+                            const dato = {
+                                nick: rUser.recordset[i].nick_usuario,
+                                idpost: rUser.recordset[i].id_post,
+                                img: datop.recordset[0].imgurl_post,
+                                texto: datop.recordset[0].texto_post,
+                                idrepost: datop.recordset[0].id_post,
+                                repost: 1,
+                                likes: datop.recordset[0].likes_post
+                            };
+                            datos.push(dato);
                         }
                     }
+                }
+                if (datos.length != 0) {
                     pool.close();
                     return res.status(200).send(datos);
                 }
-                pool.close();
-                return res.status(400).send({ msg: 'No se ha creado ningun post de este usuario o no esta siguiendo a nadie' });
+                else {
+                    pool.close();
+                    return res.status(400).send({ msg: 'No se ha creado ningun post de este usuario o no esta siguiendo a nadie' });
+                }
             }
             catch (error) {
                 console.error(error);
