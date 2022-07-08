@@ -40,8 +40,9 @@ class Controllerspost {
                             let archivoMetaData = String(archivoUri).split(",");
                             let urldirectorio = "public/post/" + req.user;
                             let arr = String(archivoMetaData[0]).split('data:');
-                            console.log(arr);
-                            let arr2 = String(arr[0]).split(';base64');
+                            let data = arr[1];
+                            console.log(data);
+                            let arr2 = String(data).split(';base64');
                             console.log(arr2);
                             let mimeT = arr2[0];
                             console.log(mimeT);
