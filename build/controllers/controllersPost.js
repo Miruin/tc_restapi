@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mssql_1 = __importDefault(require("mssql"));
 const fs_1 = __importDefault(require("fs"));
+const mime_types_1 = __importDefault(require("mime-types"));
 const config_1 = __importDefault(require("../config/config"));
 const connection_1 = require("../database/connection");
 class Controllerspost {
@@ -22,17 +23,36 @@ class Controllerspost {
     crearPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { textPost, repostId, repostEstado } = req.body;
+                let { textPost, archivoUri, repostId, repostEstado } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
                 let id = r1.recordset[0].id_usuario;
                 let f = false;
-                if ((req.file != null) ||
+                if ((req.file != null || archivoUri != null) ||
                     (textPost != null && textPost != '')) {
                     let urlarchivo = '';
                     if (req.file) {
                         let p = (req.file.path).split('/');
                         urlarchivo = 'https://tcrestapi.herokuapp.com/' + p[1] + '/' + p[2] + '/' + p[3];
+                    }
+                    if (!req.file) {
+                        if (archivoUri) {
+                            let archivoMetaData = archivoUri.split(",");
+                            let urldirectorio = "public/post/" + req.user;
+                            let mimeT = archivoMetaData[0].split('data:');
+                            mimeT = mimeT.split(';base64');
+                            console.log(mimeT);
+                            let name_archivo = Date.now() + "-" + req.user + "." + mime_types_1.default.extension(mimeT);
+                            urlarchivo = "https://tcrestapi.herokuapp.com/post/" + req.user + "/" + name_archivo;
+                            if (!fs_1.default.existsSync(urldirectorio)) {
+                                fs_1.default.mkdirSync(urldirectorio, { recursive: true });
+                            }
+                            fs_1.default.writeFile(urldirectorio + '/' + name_archivo, archivoMetaData[1], 'base64', (error) => {
+                                if (error) {
+                                    console.error(error);
+                                }
+                            });
+                        }
                     }
                     yield pool.request()
                         .input('iduser', mssql_1.default.VarChar, id)
