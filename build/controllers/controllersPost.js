@@ -23,7 +23,6 @@ class Controllerspost {
     crearPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body);
                 let { textPost, archivoUri, repostId, repostEstado } = req.body;
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
@@ -40,8 +39,11 @@ class Controllerspost {
                         if (archivoUri) {
                             let archivoMetaData = String(archivoUri).split(",");
                             let urldirectorio = "public/post/" + req.user;
-                            let mimeT = String(archivoMetaData[0]).split('data:');
-                            mimeT = String(mimeT).split(';base64');
+                            let arr = String(archivoMetaData[0]).split('data:');
+                            console.log(arr);
+                            let arr2 = String(arr[0]).split(';base64');
+                            console.log(arr2);
+                            let mimeT = arr2[0];
                             console.log(mimeT);
                             let name_archivo = Date.now() + "-" + req.user + "." + mime_types_1.default.extension(String(mimeT));
                             urlarchivo = "https://tcrestapi.herokuapp.com/post/" + req.user + "/" + name_archivo;

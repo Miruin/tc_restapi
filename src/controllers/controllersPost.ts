@@ -16,9 +16,6 @@ class Controllerspost {
     async crearPost(req: Request, res: Response): Promise<any> { 
         
         try {
-
-            console.log(req.body);
-            
             
             let {textPost, archivoUri,  repostId, repostEstado } = req.body;
             
@@ -44,8 +41,13 @@ class Controllerspost {
 
                         let archivoMetaData = String(archivoUri).split(",")
                         let urldirectorio = "public/post/"+req.user
-                        let mimeT = String(archivoMetaData[0]).split('data:')
-                        mimeT = String(mimeT).split(';base64')
+                        let arr = String(archivoMetaData[0]).split('data:')
+                        console.log(arr);
+                        
+                        let arr2 = String(arr[0]).split(';base64')
+                        console.log(arr2);
+                        
+                        let mimeT = arr2[0]
                         console.log(mimeT);
     
                         let name_archivo = Date.now()+"-"+req.user+"."+mimeTypes.extension(String(mimeT));
