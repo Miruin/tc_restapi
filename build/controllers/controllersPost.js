@@ -25,8 +25,6 @@ class Controllerspost {
             try {
                 console.log(req.body);
                 let { textPost, archivoUri, repostId, repostEstado } = req.body;
-                console.log(archivoUri);
-                console.log(textPost);
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
                 let id = r1.recordset[0].id_usuario;
@@ -40,12 +38,12 @@ class Controllerspost {
                     }
                     if (!req.file) {
                         if (archivoUri) {
-                            let archivoMetaData = archivoUri.split(",");
+                            let archivoMetaData = String(archivoUri).split(",");
                             let urldirectorio = "public/post/" + req.user;
-                            let mimeT = archivoMetaData[0].split('data:');
-                            mimeT = mimeT.split(';base64');
+                            let mimeT = String(archivoMetaData[0]).split('data:');
+                            mimeT = String(mimeT).split(';base64');
                             console.log(mimeT);
-                            let name_archivo = Date.now() + "-" + req.user + "." + mime_types_1.default.extension(mimeT);
+                            let name_archivo = Date.now() + "-" + req.user + "." + mime_types_1.default.extension(String(mimeT));
                             urlarchivo = "https://tcrestapi.herokuapp.com/post/" + req.user + "/" + name_archivo;
                             if (!fs_1.default.existsSync(urldirectorio)) {
                                 fs_1.default.mkdirSync(urldirectorio, { recursive: true });
