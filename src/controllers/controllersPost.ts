@@ -17,7 +17,7 @@ class Controllerspost {
         
         try {
             
-            let {textPost, archivoUri,  repostId, repostEstado } = req.body;
+            let {textPost, archivoUri,  repostId, repostEstado } = req.body.data;
             console.log(archivoUri);
             console.log(textPost);
             

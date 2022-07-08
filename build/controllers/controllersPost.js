@@ -23,7 +23,7 @@ class Controllerspost {
     crearPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let { textPost, archivoUri, repostId, repostEstado } = req.body;
+                let { textPost, archivoUri, repostId, repostEstado } = req.body.data;
                 console.log(archivoUri);
                 console.log(textPost);
                 const pool = yield (0, connection_1.getcon)();
