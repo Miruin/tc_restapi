@@ -39,7 +39,7 @@ class Controllerspost {
                         if (archivoUri) {
                             let archivoMetaData = String(archivoUri).split(",");
                             let urldirectorio = "public/post/" + req.user;
-                            let arr = String(archivoMetaData[0]).split('data:');
+                            let arr = String(archivoMetaData[1]).split('data:');
                             console.log(arr);
                             let arr2 = String(arr[0]).split(';base64');
                             console.log(arr2);
