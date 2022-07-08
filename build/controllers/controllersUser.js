@@ -86,12 +86,12 @@ class Controllersuser {
     login(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const pool = yield (0, connection_1.getcon)();
                 let { Username, Password } = req.body;
                 if (!Username || !Password) {
                     return res.status(400).send({ msg: 'No se han llenado los valores correctamente' });
                 }
                 else {
+                    const pool = yield (0, connection_1.getcon)();
                     const result = yield pool.request()
                         .input('username', Username)
                         .query(String(config_1.default.q2_1));

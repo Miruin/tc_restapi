@@ -106,8 +106,6 @@ class Controllersuser {
     
         try {
     
-            const pool = await getcon();
-    
             let { Username, Password} = req.body;
     
             if (!Username || !Password) {
@@ -115,6 +113,8 @@ class Controllersuser {
                 return res.status(400).send({ msg : 'No se han llenado los valores correctamente'});
                 
             } else {
+
+                const pool = await getcon();
                 
                 const result = await pool.request()
                 .input('username', Username)
