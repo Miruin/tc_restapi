@@ -170,13 +170,18 @@ class Controllerspost {
             const rFollow = await pool.request()
             .input('iduser', iduser)
             .query(String(config.q6_3))
-        
+
+            console.log(rFollow.recordset);
+            
 
             for (const key in rFollow.recordset) {
                 const r2 = await getdatosuser(pool, String(rFollow.recordset[key].usuario_follow));
                 let iduser = r2.recordset[0].id_usuario;
                 arrUser.push(iduser);
             }
+
+            console.log(arrUser);
+            
 
             type posts = {
                 nick: string;
@@ -195,7 +200,8 @@ class Controllerspost {
                 const rUser = await pool.request()
                 .input('iduser', arrUser[key])
                 .query(String(config.q6_1));
-
+                console.log(rUser.recordset);
+                
                 for (const i in rUser.recordset) {
 
                     if (rUser.recordset[i].re_post == 0) {
@@ -229,8 +235,13 @@ class Controllerspost {
                     }
          
                 }
+                console.log(datos);
+                
                 
             }
+
+            console.log('full: '+datos);
+            
             
             if(datos.length != 0){
                 pool.close();

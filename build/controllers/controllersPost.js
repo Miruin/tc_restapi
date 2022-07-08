@@ -139,16 +139,19 @@ class Controllerspost {
                 const rFollow = yield pool.request()
                     .input('iduser', iduser)
                     .query(String(config_1.default.q6_3));
+                console.log(rFollow.recordset);
                 for (const key in rFollow.recordset) {
                     const r2 = yield (0, connection_1.getdatosuser)(pool, String(rFollow.recordset[key].usuario_follow));
                     let iduser = r2.recordset[0].id_usuario;
                     arrUser.push(iduser);
                 }
+                console.log(arrUser);
                 const datos = [];
                 for (const key in arrUser) {
                     const rUser = yield pool.request()
                         .input('iduser', arrUser[key])
                         .query(String(config_1.default.q6_1));
+                    console.log(rUser.recordset);
                     for (const i in rUser.recordset) {
                         if (rUser.recordset[i].re_post == 0) {
                             const dato = {
@@ -176,7 +179,9 @@ class Controllerspost {
                             datos.push(dato);
                         }
                     }
+                    console.log(datos);
                 }
+                console.log('full: ' + datos);
                 if (datos.length != 0) {
                     pool.close();
                     return res.status(200).send(datos);
