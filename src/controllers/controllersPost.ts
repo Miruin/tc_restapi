@@ -20,7 +20,7 @@ class Controllerspost {
             console.log(req.body);
             
             
-            let {textPost, archivoUri,  repostId, repostEstado } = req.body.data;
+            let {textPost, archivoUri,  repostId, repostEstado } = req.body;
             console.log(archivoUri);
             console.log(textPost);
             
