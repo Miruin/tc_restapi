@@ -18,12 +18,14 @@ class Controllerspost {
         try {
             
             let {textPost, archivoUri,  repostId, repostEstado } = req.body;
+            console.log(archivoUri);
+            console.log(textPost);
+            
             const pool = await getcon();
 
             const r1 = await getdatosuser(pool, String(req.user));
             let id = r1.recordset[0].id_usuario
             let f =false 
-            console.log(archivoUri);
             
             if((req.file != null || archivoUri != null) ||
             (textPost != null && textPost != '')){     

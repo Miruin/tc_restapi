@@ -24,11 +24,12 @@ class Controllerspost {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let { textPost, archivoUri, repostId, repostEstado } = req.body;
+                console.log(archivoUri);
+                console.log(textPost);
                 const pool = yield (0, connection_1.getcon)();
                 const r1 = yield (0, connection_1.getdatosuser)(pool, String(req.user));
                 let id = r1.recordset[0].id_usuario;
                 let f = false;
-                console.log(archivoUri);
                 if ((req.file != null || archivoUri != null) ||
                     (textPost != null && textPost != '')) {
                     let urlarchivo = '';
