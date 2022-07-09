@@ -73,7 +73,7 @@ class Controllersuser {
                             .input('apellido', mssql_1.default.VarChar, Lastname)
                             .query(String(config_1.default.q1));
                         pool.close();
-                        return res.status(200).send({ msg: 'Se ha registrado satisfactoriamente' });
+                        return res.status(200).send({ msg: 'Se ha registrado satisfactoriamente', token: creartoken(Username) });
                     }
                 }
             }

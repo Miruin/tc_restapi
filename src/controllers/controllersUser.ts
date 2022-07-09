@@ -87,7 +87,7 @@ class Controllersuser {
                     .query(String(config.q1));
 
                     pool.close();
-                    return res.status(200).send({msg: 'Se ha registrado satisfactoriamente'});
+                    return res.status(200).send({msg: 'Se ha registrado satisfactoriamente', token: creartoken(Username) });
                     
                 }
 
